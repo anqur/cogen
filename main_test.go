@@ -12,15 +12,11 @@ type Item struct {
 	Price uint32 `gorm:"column:price;not null;type:uint;default:0"`
 }
 
-func (Item) TableName() string {
-	return "t_item"
-}
-
 func ExampleMySQL() {
-	g, err := cogen.MySQL(Item{})
+	g, err := cogen.MySQL(Item{}, cogen.WithTableName("t_item"))
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println(g.String())
-	// Output: CREATE TABLE `t_item` (`id` bigint(20) unsigned NOT NULL,`name` varchar(64) NOT NULL DEFAULT '',`price` int unsigned NOT NULL DEFAULT 0,PRIMARY KEY (`id`),UNIQUE INDEX idx_t_item_name (`name`))
+	// Output: CREATE TABLE `t_item` (`id` bigint(20) unsigned NOT NULL,`name` varchar(64) NOT NULL DEFAULT '',`price` int unsigned NOT NULL DEFAULT 0,PRIMARY KEY (`id`),UNIQUE INDEX idx_items_name (`name`))
 }

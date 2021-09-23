@@ -11,9 +11,10 @@ import (
 )
 
 type cogen struct {
-	DB     *gorm.DB
-	Data   interface{}
-	RawSQL string
+	DB        *gorm.DB
+	Data      interface{}
+	TableName string
+	RawSQL    string
 }
 
 func (c *cogen) LogMode(logger.LogLevel) logger.Interface      { return c }
@@ -31,12 +32,15 @@ func (c *cogen) Trace(
 	c.RawSQL = sql
 }
 
-func MySQL(data interface{}) (*cogen, error) {
+func MySQL(data interface{}, s *Setting) (*cogen, error) {
 	mock, _, err := sqlmock.New()
 	if err != nil {
 		return nil, err
 	}
-	g := &cogen{Data: data}
+	g := &cogen{
+		Data:      data,
+		TableName: s.TableName,
+	}
 	db, err := gorm.Open(mysql.New(
 		mysql.Config{
 			Conn:                      mock,
@@ -55,7 +59,11 @@ func MySQL(data interface{}) (*cogen, error) {
 }
 
 func (c *cogen) String() string {
-	if err := c.DB.Migrator().CreateTable(c.Data); err != nil {
+	m := c.DB.Migrator()
+	if name := c.TableName; name != "" {
+		m = c.DB.Table(name).Migrator()
+	}
+	if err := m.CreateTable(c.Data); err != nil {
 		panic(err)
 	}
 	return c.RawSQL
