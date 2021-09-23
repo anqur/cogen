@@ -1,13 +1,4 @@
-# cogen
-
-> *co-generator*, or *codegen*.
-
-*cogen* is a DDL codegen for GORM structs.
-
-## Example
-
-```go
-package main
+package cogen_test
 
 import (
 	"fmt"
@@ -25,21 +16,11 @@ func (Item) TableName() string {
 	return "t_item"
 }
 
-func main() {
+func ExampleMySQL() {
 	g, err := cogen.MySQL(Item{})
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println(g.String())
+	// Output: CREATE TABLE `t_item` (`id` bigint(20) unsigned NOT NULL,`name` varchar(64) NOT NULL DEFAULT '',`price` int unsigned NOT NULL DEFAULT 0,PRIMARY KEY (`id`),UNIQUE INDEX idx_t_item_name (`name`))
 }
-```
-
-## Why
-
-* It's hard to do that in GORM. We need some hacks and tricks
-* I believe that DB schemas are mostly not the real business entities without invariants. Let's generate the DDLs from
-  some intermediate ORM structs!
-
-## License
-
-MIT
