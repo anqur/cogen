@@ -8,6 +8,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
 )
 
 type cogen struct {
@@ -32,6 +33,15 @@ func (c *cogen) Trace(
 	c.RawSQL = sql
 }
 
+type fixedTableNamer struct {
+	tableName string
+	schema.NamingStrategy
+}
+
+func (n fixedTableNamer) TableName(string) string {
+	return n.tableName
+}
+
 func MySQL(data interface{}, s *Setting) (*cogen, error) {
 	mock, _, err := sqlmock.New()
 	if err != nil {
@@ -41,15 +51,19 @@ func MySQL(data interface{}, s *Setting) (*cogen, error) {
 		Data:      data,
 		TableName: s.TableName,
 	}
+	cfg := &gorm.Config{
+		DryRun: true,
+		Logger: g,
+	}
+	if s.TableName != "" {
+		cfg.NamingStrategy = fixedTableNamer{tableName: s.TableName}
+	}
 	db, err := gorm.Open(mysql.New(
 		mysql.Config{
 			Conn:                      mock,
 			SkipInitializeWithVersion: true,
 		}),
-		&gorm.Config{
-			DryRun: true,
-			Logger: g,
-		},
+		cfg,
 	)
 	if err != nil {
 		return nil, err
