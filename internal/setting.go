@@ -1,5 +1,6 @@
 package internal
 
 type Setting struct {
-	TableName string
+	TableName    string
+	TableInIndex bool
 }

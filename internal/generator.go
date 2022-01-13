@@ -34,12 +34,19 @@ func (c *cogen) Trace(
 }
 
 type fixedTableNamer struct {
-	tableName string
+	s *Setting
 	schema.NamingStrategy
 }
 
 func (n fixedTableNamer) TableName(string) string {
-	return n.tableName
+	return n.s.TableName
+}
+
+func (n fixedTableNamer) IndexName(table, column string) string {
+	if !n.s.TableInIndex {
+		return "idx_" + n.NamingStrategy.ColumnName(table, column)
+	}
+	return n.NamingStrategy.IndexName(table, column)
 }
 
 func MySQL(data interface{}, s *Setting) (*cogen, error) {
@@ -56,7 +63,7 @@ func MySQL(data interface{}, s *Setting) (*cogen, error) {
 		Logger: g,
 	}
 	if s.TableName != "" {
-		cfg.NamingStrategy = fixedTableNamer{tableName: s.TableName}
+		cfg.NamingStrategy = fixedTableNamer{s: s}
 	}
 	db, err := gorm.Open(mysql.New(
 		mysql.Config{

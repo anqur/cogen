@@ -19,6 +19,11 @@ type tableName string
 func (n tableName) Apply(s *internal.Setting) { s.TableName = string(n) }
 func WithTableName(name string) Option        { return tableName(name) }
 
+type tblInIdx struct{}
+
+func (tblInIdx) Apply(s *internal.Setting) { s.TableInIndex = true }
+func WithTableNameInIndex() Option         { return tblInIdx{} }
+
 func newSetting(opts []Option) *internal.Setting {
 	s := new(internal.Setting)
 	for _, opt := range opts {

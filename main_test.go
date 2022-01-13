@@ -18,5 +18,5 @@ func ExampleMySQL() {
 		panic(err)
 	}
 	fmt.Println(g.String())
-	// Output: CREATE TABLE `t_item` (`id` bigint(20) unsigned NOT NULL,`name` varchar(64) NOT NULL DEFAULT '',`price` int unsigned NOT NULL DEFAULT 0,PRIMARY KEY (`id`),UNIQUE INDEX idx_t_item_name (`name`))
+	// Output: CREATE TABLE `t_item` (`id` bigint(20) unsigned NOT NULL,`name` varchar(64) NOT NULL DEFAULT '',`price` int unsigned NOT NULL DEFAULT 0,PRIMARY KEY (`id`),UNIQUE INDEX idx_name (`name`))
 }
